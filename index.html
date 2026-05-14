@@ -2,89 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GMBP — Government Mountain › Ball Big Project</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GMBP — Dashboard</title>
 <link rel="stylesheet" href="style.css">
 <style>
-#three-canvas {
-  width: 100%;
-  height: 380px;
-  border-radius: 8px;
-  display: block;
-  cursor: grab;
-}
-#three-canvas:active { cursor: grabbing; }
-
-.scene-wrap {
-  position: relative;
-  background: radial-gradient(ellipse at center, #0a1830 0%, #020510 100%);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.scene-label {
-  position: absolute;
-  top: 12px; left: 16px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  color: rgba(0,212,255,0.6);
-  letter-spacing: 0.12em;
-  pointer-events: none;
-}
-.scene-progress-label {
-  position: absolute;
-  bottom: 12px; left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
-  color: var(--amber);
-  letter-spacing: 0.08em;
-  pointer-events: none;
-  text-shadow: 0 0 8px var(--amber);
-}
-
-.mine-btn-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-}
-#btn-mine {
-  font-size: 16px;
-  padding: 14px 48px;
-  letter-spacing: 0.15em;
-}
-
-.stat-row {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.rate-badge {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  background: rgba(0,212,255,0.08);
-  border: 1px solid rgba(0,212,255,0.2);
-  border-radius: 4px;
-  padding: 3px 8px;
-  color: var(--glow);
-}
-
-.ingame-clock {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
-  color: var(--amber);
-  letter-spacing: 0.1em;
-}
-
-#tax-alert { display: none; }
+#three-canvas{width:100%;height:360px;border-radius:8px;display:block;cursor:grab}
+#three-canvas:active{cursor:grabbing}
+.scene-wrap{position:relative;background:radial-gradient(ellipse at center,#0a1830 0%,#020510 100%);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.scene-label{position:absolute;top:12px;left:16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(0,212,255,.6);letter-spacing:.12em;pointer-events:none}
+.scene-pct{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.08em;pointer-events:none;text-shadow:0 0 8px var(--amber)}
+.stock-badge{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green);background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);border-radius:4px;padding:4px 10px;display:inline-block;margin-top:6px}
 </style>
 </head>
 <body>
-
 <nav>
   <a class="nav-brand" href="index.html">GM<span>›</span>BBP</a>
   <div class="nav-links">
@@ -94,698 +24,471 @@
     <a href="report.html">Report</a>
   </div>
   <div class="nav-status">
-    <div class="nav-stat">
-      <small>CASH</small>
-      <strong id="nav-cash">$0</strong>
-    </div>
-    <div class="nav-stat">
-      <small>DATE</small>
-      <strong id="nav-date">—</strong>
-    </div>
+    <div class="nav-stat"><small>CASH</small><strong id="nav-cash">$0</strong></div>
+    <div class="nav-stat"><small>DATE</small><strong id="nav-date">—</strong></div>
   </div>
 </nav>
 
-<div class="main-wrap">
-<div class="section">
+<div id="news-toast">
+  <div class="toast-title" id="toast-title">MARKET NEWS</div>
+  <div id="toast-body">—</div>
+</div>
 
-  <!-- TITLE -->
+<div class="main-wrap"><div class="section">
   <div class="mt-24">
     <div class="page-title">Government Mountain <span>›</span> Ball Big Project</div>
     <div class="page-sub">// OPERATION SITE — MOUNT RAINIER, WASHINGTON STATE, USA</div>
   </div>
 
-  <!-- TAX ALERT -->
-  <div id="tax-alert" class="tax-warning mt-12">
-    ⚠️ <span id="tax-alert-msg">Monthly tax due!</span>
-  </div>
+  <div id="tax-alert" style="display:none" class="tax-warning mt-12">⚠️ <span id="tax-msg">Tax due soon!</span></div>
 
-  <!-- TOP ROW -->
   <div class="grid-4 mt-16">
-    <div class="card">
-      <div class="card-title">Total Cash</div>
-      <div class="big-num amber" id="stat-cash">$250</div>
-      <div class="unit-label">USD available</div>
-    </div>
-    <div class="card green">
-      <div class="card-title">Mining Rate</div>
-      <div class="big-num green" id="stat-rate">0</div>
-      <div class="unit-label">tons / second</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Tons Mined</div>
-      <div class="big-num" id="stat-tons">0</div>
-      <div class="unit-label">/ 3.9B total</div>
-    </div>
-    <div class="card amber">
-      <div class="card-title">In-Game Date</div>
-      <div class="ingame-clock" id="stat-date">Jan 1, 2025</div>
-      <div class="unit-label" id="stat-realtime">Real: —</div>
-    </div>
+    <div class="card"><div class="card-title">Cash</div><div class="big-num amber" id="s-cash">$500</div><div class="unit-label">USD available</div></div>
+    <div class="card green"><div class="card-title">Mine Rate</div><div class="big-num green" id="s-rate">0</div><div class="unit-label">tons / second</div></div>
+    <div class="card"><div class="card-title">Progress</div><div class="big-num" id="s-prog">0.0000%</div><div class="unit-label" id="s-tons">0 / 3.9B tons</div></div>
+    <div class="card amber"><div class="card-title">In-Game Date</div><div class="ingame-clock" id="s-date">Jan 1, 2025</div><div class="unit-label" id="s-realtime">—</div></div>
   </div>
 
-  <!-- MAIN AREA: 3D + CONTROLS -->
-  <div class="grid-2 mt-16" style="grid-template-columns:1.5fr 1fr;">
-
-    <!-- 3D SCENE -->
+  <div class="grid-2 mt-16" style="grid-template-columns:1.5fr 1fr">
     <div>
       <div class="scene-wrap">
         <canvas id="three-canvas"></canvas>
         <div class="scene-label" id="scene-label">PHASE 1 — EXCAVATION</div>
-        <div class="scene-progress-label" id="scene-pct">0.0000% COMPLETE</div>
+        <div class="scene-pct" id="scene-pct">0.0000%</div>
       </div>
-      <div class="mine-btn-wrap">
-        <button class="btn btn-primary" id="btn-mine" onclick="manualMine()">⛏ MINE (+1 TON)</button>
-        <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted)">Click to manually mine when no equipment active</span>
+      <div style="text-align:center;margin-top:12px">
+        <button class="btn btn-primary" id="btn-mine" onclick="manualMine()" style="font-size:15px;padding:12px 40px">⛏ MINE (+5 TONS)</button>
+        <div style="margin-top:6px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted)">Manual mining adds to stock. Sell on Market page.</div>
+        <div class="stock-badge mt-8">📦 Stock: <span id="s-stock">0</span> tons</div>
       </div>
     </div>
 
-    <!-- RIGHT PANEL -->
-    <div style="display:flex;flex-direction:column;gap:12px;">
-
-      <!-- Progress -->
+    <div style="display:flex;flex-direction:column;gap:12px">
       <div class="card">
-        <div class="card-title">Mountain Removal Progress</div>
-        <div style="margin:8px 0;">
-          <div class="progress-track" style="height:14px;">
-            <div class="progress-fill" id="main-progress" style="width:0%"></div>
-          </div>
+        <div class="card-title">Mountain Progress</div>
+        <div style="margin:8px 0">
+          <div class="progress-track" style="height:14px"><div class="progress-fill" id="main-prog" style="width:0%"></div></div>
         </div>
-        <div style="display:flex;justify-content:space-between;margin-top:6px;">
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
           <span class="unit-label" id="pct-text">0.0000%</span>
-          <span class="unit-label" id="eta-text">ETA: calculating...</span>
+          <span class="unit-label" id="eta-text">ETA: buy equipment</span>
         </div>
       </div>
 
-      <!-- Equipment summary -->
       <div class="card">
         <div class="card-title">Active Equipment</div>
-        <div id="equip-summary" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;"></div>
+        <div id="equip-summary" style="display:flex;flex-direction:column;gap:6px;margin-top:8px"></div>
       </div>
 
-      <!-- Tax info -->
       <div class="card red">
         <div class="card-title">Monthly Tax</div>
-        <div class="big-num red" id="stat-tax">$0</div>
+        <div class="big-num red" id="s-tax">$0</div>
         <div class="unit-label">due in <span id="tax-days">30</span> days</div>
       </div>
 
-      <!-- Glass Ball preview -->
-      <div class="card gold" id="glass-card" style="display:none;">
-        <div class="card-title">🔮 Glass Ball — UNLOCKED</div>
-        <div style="font-size:13px;color:var(--gold);line-height:1.6;">
-          Mount Rainier has been fully converted.<br>
-          The Glass Ball is now on display.
-        </div>
+      <div class="card">
+        <div class="card-title">🛡️ Security Level</div>
+        <div class="big-num" id="s-sec" style="color:var(--glow)">NONE</div>
+        <div class="unit-label">Sabotage risk: <span id="s-risk">0</span>%</div>
       </div>
 
+      <div class="card gold" id="glass-card" style="display:none">
+        <div class="card-title">🔮 PROJECT COMPLETE</div>
+        <div style="font-size:13px;color:var(--gold);line-height:1.6">Mount Rainier has been fully dismantled.<br>The Glass Ball exists.</div>
+      </div>
     </div>
   </div>
 
-  <!-- LOG -->
   <div class="mt-16">
     <div class="card">
       <div class="card-title">Operations Log</div>
       <div class="log-box mt-8" id="log-box">
-        <div class="log-entry"><span class="log-time">[BOOT]</span><span class="log-msg info">Government Mountain › Ball Big Project initialized.</span></div>
-        <div class="log-entry"><span class="log-time">[BRIEF]</span><span class="log-msg">You are the Director. Mount Rainier must become a perfect glass sphere worth $trillions.</span></div>
+        <div class="log-entry"><span class="log-ts">[BOOT]</span><span class="log-msg info">GMBP initialized. Welcome, Director.</span></div>
       </div>
     </div>
   </div>
-
-</div>
-</div>
+</div></div>
 
 <!-- INTRO MODAL -->
 <div class="modal-overlay" id="intro-modal">
   <div class="modal-box">
     <h2>🏔️ Director, Welcome.</h2>
-    <p>
-      The United States Government has commissioned the most ambitious engineering project in human history.<br><br>
-      <strong style="color:var(--amber)">Mount Rainier, Washington — 3.9 billion tons of rock</strong><br><br>
-      Your mission: dismantle the entire mountain and reforge it into a <span style="color:var(--gold)">perfect glass ball</span> valued at over $1 trillion.<br><br>
-      You start with <strong style="color:var(--green)">$250</strong> and one excavator budget.<br>
-      Monthly taxes will drain your operation. Do not go bankrupt.
-    </p>
+    <p>The US Government has classified you as Director of the most audacious engineering project in history.<br><br>
+    <strong style="color:var(--amber)">Mount Rainier — 3.9 billion tons of granite.</strong><br><br>
+    Your mission: dismantle the entire mountain and forge it into a <span style="color:var(--gold)">perfect glass ball</span> worth $1 trillion.<br><br>
+    You start with <strong style="color:var(--green)">$500</strong>. Buy equipment, mine rock, sell it in the Market.<br>
+    Monthly taxes will drain you. Market news will shake prices. Rivals may sabotage you.<br><br>
+    <em style="color:var(--muted)">This will not be easy.</em></p>
     <button class="btn btn-primary" onclick="closeIntro()">BEGIN OPERATION</button>
   </div>
 </div>
 
-<!-- TAX DUE MODAL -->
+<!-- TAX MODAL -->
 <div class="modal-overlay" id="tax-modal">
   <div class="modal-box">
     <h2 style="color:var(--red)">⚠️ TAX COLLECTION</h2>
-    <p id="tax-modal-msg">Monthly tax of $0 has been deducted.</p>
-    <button class="btn btn-amber" onclick="closeTaxModal()">ACKNOWLEDGED</button>
+    <p id="tax-modal-msg">Tax collected.</p>
+    <button class="btn btn-amber" onclick="document.getElementById('tax-modal').classList.remove('open');taxModalOpen=false">ACKNOWLEDGED</button>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="game.js"></script>
 <script>
-// ── LOAD STATE ──────────────────────────────────────────────
+// ── STATE ────────────────────────────────────────────────────
 let S = GMBP.loadGame() || GMBP.defaultState();
+if (!S.stockTons)   S.stockTons = 0;
+if (!S.upgrades)    S.upgrades = {};
+if (!S.achievements) S.achievements = {};
+if (!S.sabotageRisk) S.sabotageRisk = 0;
+if (!S.securityLevel) S.securityLevel = 0;
+if (!S.priceMultiplier) S.priceMultiplier = 1.0;
+S.lastRealMs = Date.now();
 
-// ── THREE.JS SETUP ──────────────────────────────────────────
+// ── THREE.JS ─────────────────────────────────────────────────
 const canvas = document.getElementById('three-canvas');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x020510, 0.035);
+scene.fog = new THREE.FogExp2(0x020510, 0.03);
 
-const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
-camera.position.set(0, 4, 12);
-camera.lookAt(0, 0, 0);
+const camera = new THREE.PerspectiveCamera(55,1,0.1,200);
+camera.position.set(0,4,12);
 
-function resizeRenderer() {
-  const w = canvas.clientWidth;
-  const h = canvas.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / h;
+function resizeRenderer(){
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h;
   camera.updateProjectionMatrix();
 }
 resizeRenderer();
-window.addEventListener('resize', resizeRenderer);
+window.addEventListener('resize',resizeRenderer);
 
 // Lights
-const ambient = new THREE.AmbientLight(0x112233, 1.2);
-scene.add(ambient);
-
-const dirLight = new THREE.DirectionalLight(0xffffff, 2);
-dirLight.position.set(8, 15, 8);
-dirLight.castShadow = true;
-scene.add(dirLight);
-
-const pointBlue = new THREE.PointLight(0x00d4ff, 3, 30);
-pointBlue.position.set(-6, 5, 4);
-scene.add(pointBlue);
-
-const pointAmber = new THREE.PointLight(0xffaa00, 2, 20);
-pointAmber.position.set(6, 2, -4);
-scene.add(pointAmber);
+scene.add(new THREE.AmbientLight(0x112233,1.5));
+const dir=new THREE.DirectionalLight(0xffffff,2);dir.position.set(8,15,8);dir.castShadow=true;scene.add(dir);
+const ptBlue=new THREE.PointLight(0x00d4ff,3,30);ptBlue.position.set(-6,5,4);scene.add(ptBlue);
+const ptAmber=new THREE.PointLight(0xffaa00,2,20);ptAmber.position.set(6,2,-4);scene.add(ptAmber);
 
 // Ground
-const groundGeo = new THREE.PlaneGeometry(60, 60, 40, 40);
-const groundMat = new THREE.MeshStandardMaterial({
-  color: 0x060c1a,
-  roughness: 0.9,
-  metalness: 0.1,
-  wireframe: false,
-});
-const ground = new THREE.Mesh(groundGeo, groundMat);
-ground.rotation.x = -Math.PI / 2;
-ground.position.y = -3;
-ground.receiveShadow = true;
-scene.add(ground);
+const gnd=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.MeshStandardMaterial({color:0x060c1a,roughness:.9}));
+gnd.rotation.x=-Math.PI/2;gnd.position.y=-3;gnd.receiveShadow=true;scene.add(gnd);
+scene.add(new THREE.GridHelper(50,30,0x1a2a4a,0x0d1526));
 
-// Grid lines on ground
-const gridHelper = new THREE.GridHelper(50, 30, 0x1a2a4a, 0x0d1526);
-gridHelper.position.y = -2.99;
-scene.add(gridHelper);
+// Stars
+const starGeo=new THREE.BufferGeometry();
+const starPos=new Float32Array(600);
+for(let i=0;i<600;i+=3){starPos[i]=(Math.random()-.5)*80;starPos[i+1]=Math.random()*40+5;starPos[i+2]=(Math.random()-.5)*80;}
+starGeo.setAttribute('position',new THREE.BufferAttribute(starPos,3));
+scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xffffff,size:.1,transparent:true,opacity:.6})));
 
-// ── MOUNTAIN (cone-like using lathe) ──
-function buildMountain(progress) {
-  // progress 0-100: 0=full mountain, 100=gone (replaced by ball)
-  const p = Math.min(progress / 100, 1);
+let mtnMesh=null, snowMesh=null, ballMesh=null;
+const excMeshes=[], droneMeshes=[];
 
-  const points = [];
-  const segments = 24;
-  const baseR = 4.5;
-  const height = 7;
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments;
-    // Top shrinks as progress increases
-    const erosion = p * t * 0.9;
-    const r = baseR * (1 - t) * (1 - erosion * 0.5);
-    const y = t * height * (1 - p * 0.7);
-    points.push(new THREE.Vector2(r, y));
+function buildScene(prog){
+  [mtnMesh,snowMesh,ballMesh].forEach(m=>{if(m){scene.remove(m);m.geometry&&m.geometry.dispose();}});
+  excMeshes.forEach(m=>scene.remove(m)); excMeshes.length=0;
+  droneMeshes.forEach(m=>scene.remove(m)); droneMeshes.length=0;
+
+  const p=Math.min(prog/100,1);
+
+  // Mountain (lathe)
+  const pts=[];
+  for(let i=0;i<=24;i++){
+    const t=i/24;
+    const r=4.5*(1-t)*(1-p*t*.85);
+    pts.push(new THREE.Vector2(r, t*7*(1-p*.75)));
+  }
+  mtnMesh=new THREE.Mesh(
+    new THREE.LatheGeometry(pts,32),
+    new THREE.MeshStandardMaterial({
+      color:new THREE.Color().lerpColors(new THREE.Color(0x4a3a2a),new THREE.Color(0x1a3a5a),p),
+      roughness:.85-p*.3, metalness:.05+p*.4
+    })
+  );
+  mtnMesh.position.y=-3; mtnMesh.castShadow=true; scene.add(mtnMesh);
+
+  // Snow cap
+  if(p<.45){
+    const s=(1-p/.45)*.9;
+    snowMesh=new THREE.Mesh(
+      new THREE.ConeGeometry(s*.9,s*1.5,16),
+      new THREE.MeshStandardMaterial({color:0xeef4ff,roughness:.3})
+    );
+    snowMesh.position.y=7*(1-p*.75)-3+s*.6;
+    scene.add(snowMesh);
   }
 
-  const geo = new THREE.LatheGeometry(points, 32);
-  const mat = new THREE.MeshStandardMaterial({
-    color: new THREE.Color().lerpColors(
-      new THREE.Color(0x4a3a2a), // rocky brown
-      new THREE.Color(0x1a3a5a), // blue-grey eroded
-      p
-    ),
-    roughness: 0.85 - p * 0.3,
-    metalness: 0.05 + p * 0.4,
-  });
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.position.y = -3;
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  return mesh;
-}
-
-// Snow cap
-function buildSnow(progress) {
-  const p = Math.min(progress / 100, 1);
-  if (p > 0.4) return null;
-  const size = (1 - p / 0.4) * 0.8;
-  const geo = new THREE.ConeGeometry(size * 0.9, size * 1.5, 16);
-  const mat = new THREE.MeshStandardMaterial({ color: 0xeef4ff, roughness: 0.3 });
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.position.y = 7 * (1 - p * 0.7) - 3 + size * 0.6;
-  return mesh;
-}
-
-// Glass Ball (appears when progress > 50%)
-function buildGlassBall(progress) {
-  const p = Math.min(progress / 100, 1);
-  if (p < 0.01) return null;
-
-  const scale = Math.min(p * 2, 1);
-  const geo = new THREE.SphereGeometry(2.2 * scale, 64, 64);
-
-  // Glass material using MeshPhysicalMaterial
-  const mat = new THREE.MeshPhysicalMaterial({
-    color: 0xaaddff,
-    metalness: 0.05,
-    roughness: 0.0,
-    transmission: 0.92,
-    transparent: true,
-    opacity: 0.75 + scale * 0.2,
-    reflectivity: 1.0,
-    envMapIntensity: 2.0,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.0,
-    ior: 1.5,
-    thickness: 3.0,
-  });
-
-  const mesh = new THREE.Mesh(geo, mat);
-  // Float above ground, position shifts as mountain shrinks
-  mesh.position.y = 2.2 * scale - 1 + Math.sin(Date.now() * 0.001) * 0.1;
-  mesh.castShadow = true;
-
-  return mesh;
-}
-
-// Excavator visual (simple box combo)
-function buildExcavator(x, z) {
-  const group = new THREE.Group();
-  const bodyGeo = new THREE.BoxGeometry(0.5, 0.3, 0.7);
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.6, metalness: 0.5 });
-  const body = new THREE.Mesh(bodyGeo, bodyMat);
-  body.position.y = 0.15;
-  group.add(body);
-
-  const armGeo = new THREE.BoxGeometry(0.08, 0.5, 0.08);
-  const armMat = new THREE.MeshStandardMaterial({ color: 0xddaa00, roughness: 0.5, metalness: 0.7 });
-  const arm = new THREE.Mesh(armGeo, armMat);
-  arm.position.set(0.12, 0.4, 0.3);
-  arm.rotation.x = -0.5;
-  group.add(arm);
-
-  group.position.set(x, -2.95, z);
-  group.castShadow = true;
-  return group;
-}
-
-// Drone visual
-function buildDrone(x, y, z) {
-  const group = new THREE.Group();
-  const bodyGeo = new THREE.BoxGeometry(0.15, 0.06, 0.15);
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x00d4ff, emissive: 0x004466, roughness: 0.3, metalness: 0.9 });
-  const body = new THREE.Mesh(bodyGeo, bodyMat);
-  group.add(body);
-
-  const propGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.01, 8);
-  const propMat = new THREE.MeshStandardMaterial({ color: 0x223344, roughness: 0.5 });
-  [-0.16, 0.16].forEach(dx => [-0.16, 0.16].forEach(dz => {
-    const p = new THREE.Mesh(propGeo, propMat);
-    p.position.set(dx, 0.04, dz);
-    group.add(p);
-  }));
-
-  group.position.set(x, y, z);
-  return group;
-}
-
-// Scene objects
-let mountainMesh = null;
-let snowMesh = null;
-let glassBallMesh = null;
-const excavatorMeshes = [];
-const droneMeshes = [];
-
-function rebuildScene() {
-  const prog = GMBP.calcProgress(S);
-
-  if (mountainMesh) { scene.remove(mountainMesh); mountainMesh.geometry.dispose(); }
-  if (snowMesh) { scene.remove(snowMesh); snowMesh.geometry.dispose(); }
-  if (glassBallMesh) { scene.remove(glassBallMesh); glassBallMesh.geometry.dispose(); }
-  excavatorMeshes.forEach(m => scene.remove(m));
-  excavatorMeshes.length = 0;
-  droneMeshes.forEach(m => scene.remove(m));
-  droneMeshes.length = 0;
-
-  mountainMesh = buildMountain(prog);
-  scene.add(mountainMesh);
-
-  const snow = buildSnow(prog);
-  if (snow) { snowMesh = snow; scene.add(snowMesh); }
-
-  const ball = buildGlassBall(prog);
-  if (ball) { glassBallMesh = ball; scene.add(glassBallMesh); }
+  // Glass ball
+  if(p>.005){
+    const sc=Math.min(p*2,1);
+    ballMesh=new THREE.Mesh(
+      new THREE.SphereGeometry(2.4*sc,64,64),
+      new THREE.MeshPhysicalMaterial({
+        color:0xaaddff, metalness:.05, roughness:0,
+        transmission:.92, transparent:true, opacity:.7+sc*.25,
+        clearcoat:1, clearcoatRoughness:0, ior:1.5, thickness:3
+      })
+    );
+    ballMesh.position.y=2.4*sc; ballMesh.castShadow=true; scene.add(ballMesh);
+  }
 
   // Excavators
-  const excCount = Math.min(S.equipment.excavator + S.equipment.bulldozer, 8);
-  for (let i = 0; i < excCount; i++) {
-    const angle = (i / excCount) * Math.PI * 2;
-    const r = 3.5;
-    const ex = buildExcavator(Math.cos(angle) * r, Math.sin(angle) * r);
-    scene.add(ex);
-    excavatorMeshes.push(ex);
+  const excN=Math.min((S.equipment.excavator||0)+(S.equipment.bulldozer||0),8);
+  for(let i=0;i<excN;i++){
+    const a=(i/excN)*Math.PI*2, r=3.8;
+    const g=new THREE.Group();
+    const body=new THREE.Mesh(new THREE.BoxGeometry(.5,.3,.7),new THREE.MeshStandardMaterial({color:0xffaa00,roughness:.6,metalness:.5}));
+    body.position.y=.15; g.add(body);
+    const arm=new THREE.Mesh(new THREE.BoxGeometry(.08,.5,.08),new THREE.MeshStandardMaterial({color:0xddaa00,roughness:.5,metalness:.7}));
+    arm.position.set(.12,.4,.3); arm.rotation.x=-.5; g.add(arm);
+    g.position.set(Math.cos(a)*r,-2.95,Math.sin(a)*r);
+    g.castShadow=true; scene.add(g); excMeshes.push(g);
   }
 
   // Drones
-  const droneCount = Math.min(S.equipment.ai_drone * 2, 12);
-  for (let i = 0; i < droneCount; i++) {
-    const angle = (i / droneCount) * Math.PI * 2;
-    const r = 3 + Math.random();
-    const d = buildDrone(Math.cos(angle) * r, 2 + Math.random() * 2, Math.sin(angle) * r);
-    scene.add(d);
-    droneMeshes.push(d);
+  const droneN=Math.min((S.equipment.ai_drone||0)*3,15);
+  for(let i=0;i<droneN;i++){
+    const g=new THREE.Group();
+    g.add(new THREE.Mesh(new THREE.BoxGeometry(.15,.06,.15),new THREE.MeshStandardMaterial({color:0x00d4ff,emissive:0x004466,roughness:.3,metalness:.9})));
+    g.position.set((Math.random()-.5)*6,2+Math.random()*3,(Math.random()-.5)*6);
+    scene.add(g); droneMeshes.push(g);
   }
 }
+buildScene(0);
 
-rebuildScene();
-
-// ── ORBIT CONTROLS (manual) ──────────────────────────────────
-let isDragging = false, prevMouse = { x: 0, y: 0 };
-let spherical = { theta: 0, phi: Math.PI / 4, radius: 12 };
-
-canvas.addEventListener('mousedown', e => { isDragging = true; prevMouse = { x: e.clientX, y: e.clientY }; });
-window.addEventListener('mouseup', () => isDragging = false);
-window.addEventListener('mousemove', e => {
-  if (!isDragging) return;
-  const dx = e.clientX - prevMouse.x;
-  const dy = e.clientY - prevMouse.y;
-  spherical.theta -= dx * 0.008;
-  spherical.phi = Math.max(0.2, Math.min(Math.PI / 2.2, spherical.phi + dy * 0.006));
-  prevMouse = { x: e.clientX, y: e.clientY };
+// Orbit controls
+let drag=false, prevMx=0, prevMy=0;
+let sph={theta:0,phi:Math.PI/4,r:12};
+canvas.addEventListener('mousedown',e=>{drag=true;prevMx=e.clientX;prevMy=e.clientY});
+window.addEventListener('mouseup',()=>drag=false);
+window.addEventListener('mousemove',e=>{
+  if(!drag)return;
+  sph.theta-=(e.clientX-prevMx)*.008;
+  sph.phi=Math.max(.2,Math.min(Math.PI/2.1,sph.phi+(e.clientY-prevMy)*.006));
+  prevMx=e.clientX;prevMy=e.clientY;
 });
-canvas.addEventListener('wheel', e => {
-  spherical.radius = Math.max(5, Math.min(25, spherical.radius + e.deltaY * 0.02));
-});
+canvas.addEventListener('wheel',e=>{sph.r=Math.max(5,Math.min(25,sph.r+e.deltaY*.02))});
+let lt=null;
+canvas.addEventListener('touchstart',e=>{lt=e.touches[0]});
+canvas.addEventListener('touchmove',e=>{
+  if(!lt)return;
+  const t=e.touches[0];
+  sph.theta-=(t.clientX-lt.clientX)*.008;
+  sph.phi=Math.max(.2,Math.min(Math.PI/2.1,sph.phi+(t.clientY-lt.clientY)*.006));
+  lt=t; e.preventDefault();
+},{passive:false});
 
-// Touch
-let lastTouch = null;
-canvas.addEventListener('touchstart', e => { lastTouch = e.touches[0]; });
-canvas.addEventListener('touchmove', e => {
-  if (!lastTouch) return;
-  const t = e.touches[0];
-  spherical.theta -= (t.clientX - lastTouch.clientX) * 0.008;
-  spherical.phi = Math.max(0.2, Math.min(Math.PI / 2.2, spherical.phi + (t.clientY - lastTouch.clientY) * 0.006));
-  lastTouch = t;
-  e.preventDefault();
-}, { passive: false });
-
-// ── ANIMATION LOOP ───────────────────────────────────────────
-let lastRebuild = 0;
-let frameCount = 0;
-
-function animate() {
+let lastRebuild=0;
+function animate(){
   requestAnimationFrame(animate);
-  frameCount++;
-  const t = Date.now() * 0.001;
-
-  // Camera orbit
-  camera.position.x = Math.sin(spherical.theta) * Math.sin(spherical.phi) * spherical.radius;
-  camera.position.y = Math.cos(spherical.phi) * spherical.radius;
-  camera.position.z = Math.cos(spherical.theta) * Math.sin(spherical.phi) * spherical.radius;
-  camera.lookAt(0, 1, 0);
-
-  // Glass ball float + rotate
-  if (glassBallMesh) {
-    glassBallMesh.position.y = 2.5 + Math.sin(t * 0.8) * 0.25;
-    glassBallMesh.rotation.y += 0.004;
-    glassBallMesh.rotation.x += 0.001;
-  }
-
-  // Mountain slow rotate
-  if (mountainMesh) mountainMesh.rotation.y += 0.0008;
-  if (snowMesh) snowMesh.rotation.y = mountainMesh ? mountainMesh.rotation.y : 0;
-
-  // Drone orbit
-  droneMeshes.forEach((d, i) => {
-    const a = t * 0.6 + (i / droneMeshes.length) * Math.PI * 2;
-    const r = 3.2;
-    d.position.x = Math.cos(a) * r;
-    d.position.z = Math.sin(a) * r;
-    d.position.y = 2.5 + Math.sin(t + i) * 0.3;
-    d.rotation.y = a + Math.PI / 2;
+  const t=Date.now()*.001;
+  camera.position.set(
+    Math.sin(sph.theta)*Math.sin(sph.phi)*sph.r,
+    Math.cos(sph.phi)*sph.r,
+    Math.cos(sph.theta)*Math.sin(sph.phi)*sph.r
+  );
+  camera.lookAt(0,1,0);
+  if(ballMesh){ballMesh.position.y=2.5+Math.sin(t*.8)*.3;ballMesh.rotation.y+=.004;ballMesh.rotation.x+=.001;}
+  if(mtnMesh)mtnMesh.rotation.y+=.0008;
+  if(snowMesh)snowMesh.rotation.y=mtnMesh?mtnMesh.rotation.y:0;
+  droneMeshes.forEach((d,i)=>{
+    const a=t*.7+(i/droneMeshes.length)*Math.PI*2;
+    d.position.x=Math.cos(a)*3.5; d.position.z=Math.sin(a)*3.5;
+    d.position.y=2.5+Math.sin(t+i)*.4; d.rotation.y=a+Math.PI/2;
   });
-
-  // Excavator arm bob
-  excavatorMeshes.forEach((ex, i) => {
-    ex.rotation.y = t * 0.4 + (i / excavatorMeshes.length) * Math.PI * 2;
-  });
-
-  // Pulsing lights
-  pointBlue.intensity = 2.5 + Math.sin(t * 1.5) * 0.5;
-  pointAmber.intensity = 1.8 + Math.sin(t * 2.1 + 1) * 0.4;
-
-  // Rebuild scene every 2 seconds
-  if (Date.now() - lastRebuild > 2000) {
-    rebuildScene();
-    lastRebuild = Date.now();
-  }
-
-  renderer.render(scene, camera);
+  excMeshes.forEach((ex,i)=>{ex.rotation.y=t*.3+(i/excMeshes.length)*Math.PI*2;});
+  ptBlue.intensity=2.5+Math.sin(t*1.5)*.5;
+  ptAmber.intensity=1.8+Math.sin(t*2.1+1)*.4;
+  if(Date.now()-lastRebuild>3000){buildScene(GMBP.progress(S));lastRebuild=Date.now();}
+  renderer.render(scene,camera);
 }
 animate();
 
-// ── GAME TICK ────────────────────────────────────────────────
-function fmt(n) {
-  if (n >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
-  if (n >= 1e9)  return '$' + (n / 1e9).toFixed(2) + 'B';
-  if (n >= 1e6)  return '$' + (n / 1e6).toFixed(2) + 'M';
-  if (n >= 1e3)  return '$' + (n / 1e3).toFixed(1) + 'K';
-  return '$' + Math.floor(n).toLocaleString();
+// ── HELPERS ──────────────────────────────────────────────────
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmt(n){
+  if(n>=1e12)return'$'+(n/1e12).toFixed(2)+'T';
+  if(n>=1e9) return'$'+(n/1e9).toFixed(2)+'B';
+  if(n>=1e6) return'$'+(n/1e6).toFixed(2)+'M';
+  if(n>=1e3) return'$'+(n/1e3).toFixed(1)+'K';
+  return'$'+Math.floor(n).toLocaleString();
 }
-
-function fmtTons(n) {
-  if (n >= 1e9)  return (n / 1e9).toFixed(3) + 'B';
-  if (n >= 1e6)  return (n / 1e6).toFixed(2) + 'M';
-  if (n >= 1e3)  return (n / 1e3).toFixed(1) + 'K';
+function fmtT(n){
+  if(n>=1e9)return(n/1e9).toFixed(4)+'B';
+  if(n>=1e6)return(n/1e6).toFixed(2)+'M';
+  if(n>=1e3)return(n/1e3).toFixed(1)+'K';
   return Math.floor(n).toLocaleString();
 }
+function fmtR(r){
+  if(r>=1e6)return(r/1e6).toFixed(2)+'M t/s';
+  if(r>=1e3)return(r/1e3).toFixed(1)+'K t/s';
+  return r.toFixed(r<1?2:0)+' t/s';
+}
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// ── UI UPDATE ─────────────────────────────────────────────────
+function updateUI(){
+  const prog=GMBP.progress(S);
+  const rate=GMBP.mineRatePerSec(S);
+  const tax=GMBP.monthlyTax(S);
+  const dateStr=`${MONTHS[S.month-1]} ${S.day}, ${S.year}`;
 
-function updateUI() {
-  const prog = GMBP.calcProgress(S);
-  const rate = GMBP.calcMineRatePerSec(S);
-  const tax  = GMBP.calcMonthlyTax(S);
+  document.getElementById('s-cash').textContent=fmt(S.cash);
+  document.getElementById('s-rate').textContent=fmtR(rate);
+  document.getElementById('s-prog').textContent=prog.toFixed(4)+'%';
+  document.getElementById('s-tons').textContent=fmtT(S.tonsMined)+' / 3.9B tons';
+  document.getElementById('s-stock').textContent=fmtT(S.stockTons||0);
+  document.getElementById('s-date').textContent=dateStr;
+  document.getElementById('s-tax').textContent=fmt(tax);
+  document.getElementById('s-realtime').textContent='Real: '+new Date().toLocaleTimeString();
+  document.getElementById('nav-cash').textContent=fmt(S.cash);
+  document.getElementById('nav-date').textContent=dateStr;
+  document.getElementById('main-prog').style.width=prog.toFixed(4)+'%';
+  document.getElementById('pct-text').textContent=prog.toFixed(4)+'%';
+  document.getElementById('scene-pct').textContent=prog.toFixed(4)+'% COMPLETE';
 
-  document.getElementById('stat-cash').textContent = fmt(S.cash);
-  document.getElementById('stat-rate').textContent = rate >= 1 ? fmtTons(rate) : rate.toFixed(2);
-  document.getElementById('stat-tons').textContent = fmtTons(S.tonsMined);
-  document.getElementById('nav-cash').textContent  = fmt(S.cash);
-
-  const dateStr = `${MONTHS[S.month - 1]} ${S.day}, ${S.year}`;
-  document.getElementById('stat-date').textContent = dateStr;
-  document.getElementById('nav-date').textContent  = dateStr;
-
-  document.getElementById('main-progress').style.width = prog.toFixed(4) + '%';
-  document.getElementById('pct-text').textContent = prog.toFixed(4) + '%';
-  document.getElementById('scene-pct').textContent = prog.toFixed(4) + '% COMPLETE';
+  const taxDaysLeft=30-((S.day-1)%30);
+  document.getElementById('tax-days').textContent=taxDaysLeft;
+  if(taxDaysLeft<=3){
+    document.getElementById('tax-alert').style.display='flex';
+    document.getElementById('tax-msg').textContent=`Tax of ${fmt(tax)} due in ${taxDaysLeft} day(s)!`;
+  } else {
+    document.getElementById('tax-alert').style.display='none';
+  }
 
   // ETA
-  if (rate > 0) {
-    const remaining = GMBP.MOUNTAIN_TOTAL_TONS - S.tonsMined;
-    const secLeft = remaining / rate;
-    const daysLeft = Math.floor(secLeft / (GMBP.MS_PER_DAY / 1000));
-    document.getElementById('eta-text').textContent = `ETA: ~${daysLeft.toLocaleString()}d`;
+  if(rate>0){
+    const rem=GMBP.MOUNTAIN_TONS-S.tonsMined;
+    const days=Math.floor(rem/rate/(GMBP.MS_PER_DAY/1000));
+    document.getElementById('eta-text').textContent=`ETA: ~${days.toLocaleString()}d`;
   } else {
-    document.getElementById('eta-text').textContent = 'ETA: ∞ (buy equipment)';
+    document.getElementById('eta-text').textContent='ETA: buy equipment';
   }
 
-  // Tax
-  document.getElementById('stat-tax').textContent = fmt(tax);
-  const taxDaysLeft = 30 - ((S.day - 1) % 30);
-  document.getElementById('tax-days').textContent = taxDaysLeft;
-
-  // Phase label
-  const phases = [
-    [0,   'PHASE 1 — EXCAVATION'],
-    [10,  'PHASE 2 — DEEP DRILLING'],
-    [25,  'PHASE 3 — LASER CUTTING'],
-    [50,  'PHASE 4 — NANO PROCESSING'],
-    [75,  'PHASE 5 — GLASS FORMATION'],
-    [99,  'PHASE 6 — FINAL POLISH'],
-  ];
-  let phase = phases[0][1];
-  for (const [p, label] of phases) { if (prog >= p) phase = label; }
-  document.getElementById('scene-label').textContent = phase;
+  // Phase
+  const phases=[[0,'PHASE 1 — EXCAVATION'],[10,'PHASE 2 — DEEP DRILLING'],[25,'PHASE 3 — LASER CUTTING'],[50,'PHASE 4 — NANO PROCESSING'],[75,'PHASE 5 — GLASS FORMATION'],[99,'PHASE 6 — FINAL POLISH']];
+  let phase=phases[0][1];
+  for(const [p,l] of phases){if(prog>=p)phase=l;}
+  document.getElementById('scene-label').textContent=phase;
 
   // Equipment summary
-  const summaryEl = document.getElementById('equip-summary');
-  summaryEl.innerHTML = '';
-  let anyEquip = false;
-  for (const [id, count] of Object.entries(S.equipment)) {
-    if (count > 0) {
-      anyEquip = true;
-      const eq = GMBP.EQUIPMENT_DATA[id];
-      const rateTotal = eq.mineRate * count;
-      summaryEl.innerHTML += `
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span>${eq.emoji} ${eq.name} ×${count}</span>
-          <span class="rate-badge">+${rateTotal >= 1 ? fmtTons(rateTotal) : rateTotal.toFixed(2)} t/s</span>
-        </div>`;
+  const el=document.getElementById('equip-summary');
+  el.innerHTML='';
+  let any=false;
+  for(const [id,cnt] of Object.entries(S.equipment)){
+    if(cnt>0){
+      any=true;
+      const eq=GMBP.EQUIPMENT[id];
+      el.innerHTML+=`<div style="display:flex;justify-content:space-between;align-items:center;"><span>${eq.emoji} ${eq.name} ×${cnt}</span><span class="rate-badge">+${fmtR(eq.mineRate*cnt)}</span></div>`;
     }
   }
-  if (!anyEquip) summaryEl.innerHTML = '<span style="color:var(--muted);font-size:12px;">No equipment. Buy in Workshop →</span>';
+  if(!any)el.innerHTML='<span style="color:var(--muted);font-size:12px">No equipment. → Workshop</span>';
 
-  // Glass ball unlock
-  if (prog >= 100) {
-    document.getElementById('glass-card').style.display = 'block';
-    rebuildScene();
-  }
+  // Security
+  const secNames=['NONE','BASIC','ADVANCED','QUANTUM'];
+  document.getElementById('s-sec').textContent=secNames[S.securityLevel||0];
+  document.getElementById('s-risk').textContent=Math.floor(S.sabotageRisk||0);
 
-  // Nav date
-  document.getElementById('stat-realtime').textContent = `Real: ${new Date().toLocaleTimeString()}`;
+  if(prog>=100)document.getElementById('glass-card').style.display='block';
 }
 
-// Mining adds to stock (not cash directly — sell manually in Market)
-function earnFromMining(tonsDelta) {
-  if (!S.stockTons) S.stockTons = 0;
-  S.stockTons += tonsDelta;
-}
-
-// Game loop
-let lastGameTick = Date.now();
-let accumulatedMs = 0;
-
-function gameTick() {
-  const now = Date.now();
-  const deltaReal = now - lastGameTick;
-  lastGameTick = now;
-  accumulatedMs += deltaReal;
-
-  const daysElapsed = Math.floor(accumulatedMs / GMBP.MS_PER_DAY);
-  if (daysElapsed <= 0) return;
-  accumulatedMs -= daysElapsed * GMBP.MS_PER_DAY;
-
-  // CRITICAL: always reload latest state from localStorage first
-  // This ensures sells/buys from other pages (market, workshop) are respected
-  const fresh = GMBP.loadGame();
-  if (fresh) {
-    // Merge: keep timing from local S, take economy from storage
-    S.cash = fresh.cash;
-    S.tonsMined = fresh.tonsMined;
-    S.stockTons = fresh.stockTons || 0;
-    S.equipment = fresh.equipment;
-    S.upgrades = fresh.upgrades;
-    S.taxHistory = fresh.taxHistory;
-    S.log = fresh.log;
-    S.totalEarned = fresh.totalEarned;
-    S.totalTaxPaid = fresh.totalTaxPaid;
-    S.sellHistory = fresh.sellHistory;
-    S.achievements = fresh.achievements;
-  }
-
-  const rate = GMBP.calcMineRatePerSec(S);
-  const secondsPerDay = GMBP.MS_PER_DAY / 1000;
-
-  for (let d = 0; d < daysElapsed; d++) {
-    const tonsDelta = rate * secondsPerDay;
-    S.tonsMined = Math.min(S.tonsMined + tonsDelta, GMBP.MOUNTAIN_TOTAL_TONS);
-    earnFromMining(tonsDelta);
-
-    S.day++;
-    if (S.day > 30) {
-      S.day = 1;
-      S.month++;
-
-      // MONTHLY TAX
-      const tax = GMBP.calcMonthlyTax(S);
-      if (tax > 0) {
-        if (S.cash >= tax) {
-          S.cash -= tax;
-          S.totalTaxPaid += tax;
-          GMBP.addLog(S, `Tax collected: ${fmt(tax)}`);
-          showTaxModal(tax, false);
-        } else {
-          const penalty = S.cash * 0.5;
-          S.cash = Math.max(0, S.cash - penalty);
-          GMBP.addLog(S, `⚠️ TAX DEFAULT! Penalty: ${fmt(penalty)}`);
-          showTaxModal(tax, true);
-        }
-        S.taxHistory.push({ month: S.month - 1, year: S.year, amount: tax });
-        if (S.taxHistory.length > 24) S.taxHistory.shift();
-      }
-
-      if (S.month > 12) {
-        S.month = 1;
-        S.year++;
-      }
-    }
-  }
-
-  updateUI();
-  updateLog();
-  GMBP.saveGame(S);
-}
-
-function updateLog() {
-  const box = document.getElementById('log-box');
-  if (!S.log.length) return;
-  box.innerHTML = S.log.map(e =>
-    `<div class="log-entry"><span class="log-time">[${e.t}]</span><span class="log-msg">${e.msg}</span></div>`
+function updateLog(){
+  if(!S.log||!S.log.length)return;
+  document.getElementById('log-box').innerHTML=S.log.map(e=>
+    `<div class="log-entry"><span class="log-ts">[${e.ts}]</span><span class="log-msg ${e.type||''}">${e.msg}</span></div>`
   ).join('');
 }
 
-setInterval(gameTick, 200);
+// ── NEWS TOAST ────────────────────────────────────────────────
+let toastTimer=null;
+function showNewsToast(news){
+  const el=document.getElementById('news-toast');
+  el.className='show '+(news.dir==='up'?'up':'down');
+  document.getElementById('toast-title').textContent=news.dir==='up'?'📈 PRICE SURGE':'📉 PRICE DROP';
+  document.getElementById('toast-body').textContent=news.text;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{el.classList.remove('show');},8000);
+}
 
-// MANUAL MINE
-window.manualMine = function() {
-  const earned = GMBP.sellPrice(S) * 1;
-  S.tonsMined = Math.min(S.tonsMined + 1, GMBP.MOUNTAIN_TOTAL_TONS);
-  S.cash += earned;
-  S.totalEarned += earned;
-  GMBP.saveGame(S);
-  updateUI();
-  const btn = document.getElementById('btn-mine');
-  btn.style.transform = 'scale(0.96)';
-  setTimeout(() => btn.style.transform = '', 100);
-};
-
-// TAX MODAL
-let taxModalOpen = false;
-function showTaxModal(amount, defaulted) {
-  if (taxModalOpen) return;
-  taxModalOpen = true;
-  const msg = defaulted
-    ? `⚠️ BANKRUPTCY WARNING! Could not pay $${Math.floor(amount).toLocaleString()} tax. 50% penalty applied to remaining cash.`
-    : `Monthly tax of ${fmt(amount)} has been deducted from your balance.`;
-  document.getElementById('tax-modal-msg').textContent = msg;
+// ── TAX MODAL ─────────────────────────────────────────────────
+let taxModalOpen=false;
+function showTaxModal(ev){
+  if(taxModalOpen)return;
+  taxModalOpen=true;
+  const msg=ev.defaulted
+    ?`⚠️ Could not pay $${ev.amount.toLocaleString()} tax! Penalty: $${ev.penalty.toLocaleString()} seized.`
+    :`Monthly tax of ${fmt(ev.amount)} deducted from balance.`;
+  document.getElementById('tax-modal-msg').textContent=msg;
   document.getElementById('tax-modal').classList.add('open');
 }
-window.closeTaxModal = function() {
-  document.getElementById('tax-modal').classList.remove('open');
-  taxModalOpen = false;
+
+// ── GAME TICK (MASTER) ────────────────────────────────────────
+// index.html is the ONLY page that calls processTick.
+// It reads fresh state, processes, saves. No merging tricks needed.
+
+function gameTick(){
+  // Always read fresh from localStorage
+  const fresh=GMBP.loadGame();
+  if(fresh) S=fresh;
+  if(!S.stockTons)   S.stockTons=0;
+  if(!S.upgrades)    S.upgrades={};
+  if(!S.achievements)S.achievements={};
+  if(!S.sabotageRisk)S.sabotageRisk=0;
+  if(!S.securityLevel)S.securityLevel=0;
+  if(!S.priceMultiplier)S.priceMultiplier=1.0;
+  if(!S.totalEarned)S.totalEarned=0;
+  if(!S.totalTaxPaid)S.totalTaxPaid=0;
+  if(!S.taxHistory)S.taxHistory=[];
+  if(!S.log)S.log=[];
+  if(!S.sellHistory)S.sellHistory=[];
+  if(!S.newsHistory)S.newsHistory=[];
+  if(!S.lastRealMs)S.lastRealMs=Date.now();
+
+  // Process time
+  const events=GMBP.processTick(S);
+
+  // Handle events
+  for(const ev of events){
+    if(ev.type==='news') showNewsToast(ev.data);
+    if(ev.type==='tax')  showTaxModal(ev);
+  }
+
+  // Save
+  GMBP.saveGame(S);
+  updateUI();
+  updateLog();
+}
+
+setInterval(gameTick,500);
+
+// ── MANUAL MINE ───────────────────────────────────────────────
+window.manualMine=function(){
+  const fresh=GMBP.loadGame();
+  if(fresh)S=fresh;
+  if(!S.stockTons)S.stockTons=0;
+  S.tonsMined=Math.min((S.tonsMined||0)+5, GMBP.MOUNTAIN_TONS);
+  S.stockTons+=5;
+  S.manualMines=(S.manualMines||0)+1;
+  GMBP.saveGame(S);
+  updateUI();
+  const btn=document.getElementById('btn-mine');
+  btn.textContent='⛏ +5 TONS!';
+  setTimeout(()=>{btn.textContent='⛏ MINE (+5 TONS)';},300);
 };
 
-// INTRO
-function closeIntro() {
+// ── INTRO ─────────────────────────────────────────────────────
+window.closeIntro=function(){
   document.getElementById('intro-modal').classList.remove('open');
-  if (S.firstPlay) {
-    S.firstPlay = false;
-    GMBP.addLog(S, 'Operation begun. Acquire excavators in Workshop.');
+  if(S.firstPlay){
+    S.firstPlay=false;
+    GMBP.addLog(S,'Operation begun. Buy equipment in Workshop, sell stock in Market.','info');
     GMBP.saveGame(S);
     updateLog();
   }
-}
-
-if (S.firstPlay) {
-  document.getElementById('intro-modal').classList.add('open');
-}
+};
+if(S.firstPlay)document.getElementById('intro-modal').classList.add('open');
 
 updateUI();
 updateLog();
