@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workshop — GMBP</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.eq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.eq-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.eq-card:hover {
+  border-color: rgba(0,212,255,0.4);
+  box-shadow: 0 0 20px rgba(0,212,255,0.08);
+}
+.eq-card.locked {
+  opacity: 0.5;
+  filter: grayscale(0.6);
+}
+.eq-card.locked::after {
+  content: '🔒 LOCKED';
+  position: absolute;
+  top: 12px; right: 12px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+.eq-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--glow2), var(--glow));
+}
+.eq-card.locked::before { background: var(--border); }
+
+.eq-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.eq-icon {
+  font-size: 36px;
+  line-height: 1;
+}
+.eq-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.05em;
+}
+.eq-owned {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--amber);
+}
+
+.eq-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.eq-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.eq-stat {
+  flex: 1;
+  background: rgba(0,0,0,0.3);
+  border-radius: 4px;
+  padding: 8px;
+  text-align: center;
+}
+.eq-stat .val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  color: var(--green);
+}
+.eq-stat .lbl {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+.eq-buy-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.eq-cost {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 15px;
+  color: var(--amber);
+  flex: 1;
+}
+
+.unlock-info {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.total-rate-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.total-rate-bar .item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.total-rate-bar .item span {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 18px;
+  color: var(--green);
+}
+.total-rate-bar .item small {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+.sell-btn-row {
+  display: flex;
+  gap: 8px;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">GM<span>›</span>BBP</a>
+  <div class="nav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="market.html">Market</a>
+    <a href="workshop.html" class="active">Workshop</a>
+    <a href="report.html">Report</a>
+  </div>
+  <div class="nav-status">
+    <div class="nav-stat">
+      <small>CASH</small>
+      <strong id="nav-cash">$0</strong>
+    </div>
+    <div class="nav-stat">
+      <small>DATE</small>
+      <strong id="nav-date">—</strong>
+    </div>
+  </div>
+</nav>
+
+<div class="main-wrap">
+<div class="section">
+
+  <div class="mt-24">
+    <div class="page-title">Equipment <span>Workshop</span></div>
+    <div class="page-sub">// PURCHASE & MANAGE MINING EQUIPMENT</div>
+  </div>
+
+  <!-- Summary bar -->
+  <div class="total-rate-bar mt-16">
+    <div class="item">
+      <span id="summary-cash">$0</span>
+      <small>CASH AVAILABLE</small>
+    </div>
+    <div class="item">
+      <span id="summary-rate">0 t/s</span>
+      <small>TOTAL MINE RATE</small>
+    </div>
+    <div class="item">
+      <span id="summary-tax">$0/mo</span>
+      <small>MONTHLY TAX</small>
+    </div>
+    <div class="item">
+      <span id="summary-progress">0%</span>
+      <small>MOUNTAIN PROGRESS</small>
+    </div>
+  </div>
+
+  <!-- Equipment grid -->
+  <div class="eq-grid" id="eq-grid"></div>
+
+</div>
+</div>
+
+<script src="game.js"></script>
+<script>
+let S = GMBP.loadGame() || GMBP.defaultState();
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function fmt(n) {
+  if (n >= 1e12) return '$' + (n/1e12).toFixed(2) + 'T';
+  if (n >= 1e9)  return '$' + (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6)  return '$' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3)  return '$' + (n/1e3).toFixed(1) + 'K';
+  return '$' + Math.floor(n).toLocaleString();
+}
+
+function fmtRate(r) {
+  if (r >= 1e6) return (r/1e6).toFixed(2) + 'M t/s';
+  if (r >= 1e3) return (r/1e3).toFixed(1) + 'K t/s';
+  return r.toFixed(r < 1 ? 2 : 0) + ' t/s';
+}
+
+function renderEquipment() {
+  const prog = GMBP.calcProgress(S);
+  const grid = document.getElementById('eq-grid');
+  grid.innerHTML = '';
+
+  for (const [id, eq] of Object.entries(GMBP.EQUIPMENT_DATA)) {
+    const owned = S.equipment[id] || 0;
+    const cost = GMBP.getEquipCost(id, owned);
+    const canBuy = S.cash >= cost;
+    const unlocked = prog >= eq.unlockProgress;
+    const ratePerUnit = eq.mineRate;
+    const totalRate = ratePerUnit * owned;
+
+    const card = document.createElement('div');
+    card.className = 'eq-card' + (unlocked ? '' : ' locked');
+
+    card.innerHTML = `
+      <div class="eq-header">
+        <div class="eq-icon">${eq.emoji}</div>
+        <div>
+          <div class="eq-name">${eq.name}</div>
+          <div class="eq-owned">Owned: ${owned}</div>
+        </div>
+      </div>
+      <div class="eq-desc">${eq.desc}</div>
+      <div class="eq-stats">
+        <div class="eq-stat">
+          <div class="val">${fmtRate(ratePerUnit)}</div>
+          <div class="lbl">per unit</div>
+        </div>
+        <div class="eq-stat">
+          <div class="val">${owned > 0 ? fmtRate(totalRate) : '—'}</div>
+          <div class="lbl">total output</div>
+        </div>
+        <div class="eq-stat">
+          <div class="val" style="color:var(--red)">${fmt(eq.baseCost * owned * 0.02)}/mo</div>
+          <div class="lbl">tax/mo</div>
+        </div>
+      </div>
+      ${unlocked ? `
+      <div class="eq-buy-row">
+        <div class="eq-cost" id="cost-${id}">${fmt(cost)}</div>
+        <button class="btn btn-primary" id="btn-buy-${id}" onclick="buyEquip('${id}')" ${canBuy ? '' : 'disabled'}>
+          BUY ×1
+        </button>
+        ${owned >= 10 ? `<button class="btn btn-ghost" onclick="buyEquip10('${id}')">×10</button>` : ''}
+      </div>
+      ` : `
+      <div class="unlock-info">Unlocks at ${eq.unlockProgress}% mountain progress</div>
+      `}
+    `;
+    grid.appendChild(card);
+  }
+}
+
+function updateSummary() {
+  const rate = GMBP.calcMineRatePerSec(S);
+  const tax  = GMBP.calcMonthlyTax(S);
+  const prog = GMBP.calcProgress(S);
+
+  document.getElementById('nav-cash').textContent  = fmt(S.cash);
+  document.getElementById('nav-date').textContent  = `${MONTHS[S.month-1]} ${S.day}, ${S.year}`;
+  document.getElementById('summary-cash').textContent     = fmt(S.cash);
+  document.getElementById('summary-rate').textContent     = fmtRate(rate);
+  document.getElementById('summary-tax').textContent      = fmt(tax) + '/mo';
+  document.getElementById('summary-progress').textContent = prog.toFixed(4) + '%';
+}
+
+window.buyEquip = function(id) {
+  const owned = S.equipment[id] || 0;
+  const cost  = GMBP.getEquipCost(id, owned);
+  if (S.cash < cost) return;
+  S.cash -= cost;
+  S.equipment[id] = owned + 1;
+  GMBP.addLog(S, `Purchased ${GMBP.EQUIPMENT_DATA[id].name}. Total: ${S.equipment[id]}`);
+  GMBP.saveGame(S);
+  updateSummary();
+  renderEquipment();
+};
+
+window.buyEquip10 = function(id) {
+  for (let i = 0; i < 10; i++) {
+    const owned = S.equipment[id] || 0;
+    const cost  = GMBP.getEquipCost(id, owned);
+    if (S.cash < cost) break;
+    S.cash -= cost;
+    S.equipment[id] = owned + 1;
+  }
+  GMBP.addLog(S, `Batch purchased ${GMBP.EQUIPMENT_DATA[id].name}. Total: ${S.equipment[id]}`);
+  GMBP.saveGame(S);
+  updateSummary();
+  renderEquipment();
+};
+
+// Sync state periodically (other tab may have updated it)
+setInterval(() => {
+  S = GMBP.loadGame() || S;
+  updateSummary();
+  renderEquipment();
+}, 2000);
+
+renderEquipment();
+updateSummary();
+</script>
+</body>
+</html>
