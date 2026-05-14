@@ -652,12 +652,10 @@ function updateUI() {
   document.getElementById('stat-realtime').textContent = `Real: ${new Date().toLocaleTimeString()}`;
 }
 
-// SELL mined rock each tick
+// Mining adds to stock (not cash directly — sell manually in Market)
 function earnFromMining(tonsDelta) {
-  const price = GMBP.sellPrice(S);
-  const earned = tonsDelta * price;
-  S.cash += earned;
-  S.totalEarned += earned;
+  if (!S.stockTons) S.stockTons = 0;
+  S.stockTons += tonsDelta;
 }
 
 // Game loop
@@ -678,9 +676,10 @@ function gameTick() {
   // This ensures sells/buys from other pages (market, workshop) are respected
   const fresh = GMBP.loadGame();
   if (fresh) {
-    // Merge: keep timing from local S (lastTick/day/month), but take cash/tons from storage
+    // Merge: keep timing from local S, take economy from storage
     S.cash = fresh.cash;
     S.tonsMined = fresh.tonsMined;
+    S.stockTons = fresh.stockTons || 0;
     S.equipment = fresh.equipment;
     S.upgrades = fresh.upgrades;
     S.taxHistory = fresh.taxHistory;
