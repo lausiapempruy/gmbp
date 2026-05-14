@@ -674,6 +674,23 @@ function gameTick() {
   if (daysElapsed <= 0) return;
   accumulatedMs -= daysElapsed * GMBP.MS_PER_DAY;
 
+  // CRITICAL: always reload latest state from localStorage first
+  // This ensures sells/buys from other pages (market, workshop) are respected
+  const fresh = GMBP.loadGame();
+  if (fresh) {
+    // Merge: keep timing from local S (lastTick/day/month), but take cash/tons from storage
+    S.cash = fresh.cash;
+    S.tonsMined = fresh.tonsMined;
+    S.equipment = fresh.equipment;
+    S.upgrades = fresh.upgrades;
+    S.taxHistory = fresh.taxHistory;
+    S.log = fresh.log;
+    S.totalEarned = fresh.totalEarned;
+    S.totalTaxPaid = fresh.totalTaxPaid;
+    S.sellHistory = fresh.sellHistory;
+    S.achievements = fresh.achievements;
+  }
+
   const rate = GMBP.calcMineRatePerSec(S);
   const secondsPerDay = GMBP.MS_PER_DAY / 1000;
 
@@ -696,7 +713,6 @@ function gameTick() {
           GMBP.addLog(S, `Tax collected: ${fmt(tax)}`);
           showTaxModal(tax, false);
         } else {
-          // Can't pay — bankruptcy penalty
           const penalty = S.cash * 0.5;
           S.cash = Math.max(0, S.cash - penalty);
           GMBP.addLog(S, `⚠️ TAX DEFAULT! Penalty: ${fmt(penalty)}`);
