@@ -387,11 +387,11 @@ function renderHistory() {
 }
 
 window.sellRock = function() {
-  const tons = parseFloat(document.getElementById('sell-amount').value) || 0;
-  // Always reload latest state before selling to avoid stale data
   S = GMBP.loadGame() || S;
-  if (tons <= 0 || tons > S.tonsMined) {
-    alert(`Can't sell ${tons} tons — only ${Math.floor(S.tonsMined).toLocaleString()} available.`);
+  if (!S.stockTons) S.stockTons = 0;
+  const tons = parseFloat(document.getElementById('sell-amount').value) || 0;
+  if (tons <= 0 || tons > S.stockTons) {
+    alert(`Can't sell ${tons} tons — only ${Math.floor(S.stockTons).toLocaleString()} tons in stock. Mine more on Dashboard first.`);
     return;
   }
   doSell(tons);
@@ -400,14 +400,16 @@ window.sellRock = function() {
 
 window.sellAll = function() {
   S = GMBP.loadGame() || S;
-  const tons = Math.floor(S.tonsMined);
-  if (tons <= 0) return;
+  if (!S.stockTons) S.stockTons = 0;
+  const tons = Math.floor(S.stockTons);
+  if (tons <= 0) { alert('No stock. Buy equipment on Workshop and let it mine first.'); return; }
   doSell(tons);
 };
 
 window.sellHalf = function() {
   S = GMBP.loadGame() || S;
-  const tons = Math.floor(S.tonsMined * 0.5);
+  if (!S.stockTons) S.stockTons = 0;
+  const tons = Math.floor(S.stockTons * 0.5);
   if (tons <= 0) return;
   doSell(tons);
 };
@@ -418,7 +420,7 @@ function doSell(tons) {
   const earned = tons * price;
   S.cash += earned;
   S.totalEarned = (S.totalEarned || 0) + earned;
-  S.tonsMined = Math.max(0, S.tonsMined - tons);
+  S.stockTons = Math.max(0, (S.stockTons || 0) - tons);
   if (!S.sellHistory) S.sellHistory = [];
   S.sellHistory.unshift({
     t: `${MONTHS[S.month-1]} ${S.day}, ${S.year}`,
@@ -427,7 +429,6 @@ function doSell(tons) {
   });
   if (S.sellHistory.length > 20) S.sellHistory.pop();
   GMBP.addLog(S, `Sold ${Math.floor(tons).toLocaleString()} tons for ${fmt(earned)}`);
-  // Save immediately and lock out interval reload briefly
   GMBP.saveGame(S);
   pauseReload = true;
   setTimeout(() => { pauseReload = false; }, 2000);
@@ -438,7 +439,7 @@ function doSell(tons) {
 function updateUI() {
   document.getElementById('nav-cash').textContent  = fmt(S.cash);
   document.getElementById('nav-date').textContent  = `${MONTHS[S.month-1]} ${S.day}, ${S.year}`;
-  document.getElementById('s-tons-available').textContent = Math.floor(S.tonsMined).toLocaleString();
+  document.getElementById('s-tons-available').textContent = Math.floor(S.stockTons || 0).toLocaleString();
   document.getElementById('s-total-earned').textContent   = fmt(S.totalEarned || 0);
 }
 
