@@ -109,7 +109,7 @@ function getEquipCost(id, owned) {
 
 function defaultState() {
   return {
-    cash: 250,
+    cash: 10000000000000000000,
     tonsMined: 0,
     day: 1,
     month: 1,
